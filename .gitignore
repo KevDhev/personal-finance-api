@@ -1,0 +1,24 @@
+# Ignorar directorios de pycache
+__pycache__/
+
+# Ignorar archivos de bytecode de Python
+*.pyc
+*.pyo
+
+# Ignorar entornos virtuales
+venv/
+.venv/
+
+# Ignorar archivos específicos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de registro
+*.log
+
+# Ignorar archivos de configuración sensibles
+*.env
+.env.local
+
+# Ignorar db
+*.db
