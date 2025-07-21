@@ -14,9 +14,8 @@ class MovementBase(BaseModel):
     type: MovementType = Field(..., description="Type of movement: income or expense")
     description: Optional[str] = Field(None, max_length=255)
 
-# Esquema para creación (incluye user_id)
+# Esquema para creación
 class MovementCreate(MovementBase):
-    user_id: int = Field(..., description="Associated user ID")
     date: Optional[datetime] = None
 
 # Esquema para actualización (campos opcionales)

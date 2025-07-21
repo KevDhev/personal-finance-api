@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
-from .movement import MovementOut # Esquema de Movement para relaciones
+from app.schemas.movement import MovementOut
 
 # Esquema base común (evita repetir campos)
 class UserBase(BaseModel):

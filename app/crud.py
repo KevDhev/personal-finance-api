@@ -1,7 +1,10 @@
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 from app.schemas import MovementCreate, MovementUpdate
 from app.models import Movement
-from datetime import datetime, timezone
+from app.models.user import User
+from typing import Optional, Dict
+from datetime import datetime, timezone, date
 
 def create_movement(db: Session, movement: MovementCreate, user_id: int):
     """
@@ -44,29 +47,51 @@ def get_movement(db: Session, movement_id: int):
 
     return db.query(Movement).filter(Movement.id == movement_id).first()
 
-def get_movements(db: Session, user_id: int, skip: int=0, limit: int=100):
+def get_movements(
+    db: Session,
+    user_id: int,
+    start_date: Optional[date]=None,
+    end_date: Optional[date]=None,
+    movement_type: Optional[str]=None,
+    skip: int=0,
+    limit: int=100
+):
     """
-    Obtiene todos los movimientos de un usuario con paginación.
+    Obtiene movimientos filtrados por varios criterios.
     
     Args:
         db: Sesión de base de datos
         user_id: ID del usuario dueño de los movimientos
-        skip: Número de registros a saltar (para paginación)
+        start_date: Fecha inicial para filtrar (opcional)
+        end_date: Fecha final para filtrar (opcional)
+        movement_type: Tipo de movimiento ('ingreso'/'gasto') (opcional)
+        skip: Número de registros a saltar (paginación)
         limit: Máximo número de registros a devolver
     
     Returns:
-        Lista de movimientos del usuario
+        Lista de movimientos que cumplen con los filtros
     """
 
-    return (
-        db.query(Movement)
-        .filter(Movement.user_id == user_id)
-        .offset(skip)
-        .limit(limit)
-        .all()
-    )
+    # Crear consulta base filtrando por usuario
+    query = db.query(Movement).filter(Movement.user_id == user_id)
 
-def update_movement(db: Session, movement_id: int, movement: MovementUpdate):
+    # Aplicar filtros adicionales si se proporcionan
+    if start_date:
+        query = query.filter(Movement.date >= start_date)
+    if end_date:
+        query = query.filter(Movement.date <= end_date)
+    if movement_type:
+        query = query.filter(Movement.type == movement_type)
+    
+    # Aplicar paginación y devolver resultados
+    return query.offset(skip).limit(limit).all()
+
+def update_movement(
+    db: Session,
+    movement_id: int,
+    movement: MovementUpdate,
+    user_id: int
+):
     """
     Actualiza un movimiento existente.
     
@@ -79,7 +104,10 @@ def update_movement(db: Session, movement_id: int, movement: MovementUpdate):
         El movimiento actualizado si existe, None si no se encuentra
     """
 
-    db_movement = get_movement(db, movement_id)
+    db_movement = db.query(Movement).filter(
+        Movement.id == movement_id,
+        Movement.user_id == user_id
+    ).first()
 
     if db_movement:
         update_data = movement.model_dump(exclude_unset=True)
@@ -113,3 +141,66 @@ def delete_movement(db: Session, movement_id: int):
     
     return False
 
+def get_balance_summary(
+    db: Session,
+    user_id: int,
+    start_date: Optional[date]=None,
+    end_date: Optional[date]=None,
+) -> Dict[str, float]:
+    """
+    Calcula el resumen financiero para un usuario:
+    - Total ingresos
+    - Total gastos
+    - Balance (ingresos - gastos)
+    
+    Args:
+        db: Sesión de base de datos
+        user_id: ID del usuario
+        start_date: Fecha inicial opcional para filtrar
+        end_date: Fecha final opcional para filtrar
+    
+    Returns:
+        Diccionario con totals y balance
+    """
+
+    # Filtro base por usuario
+    base_query = db.query(Movement).filter(Movement.user_id == user_id)
+
+    # Aplicar filtros de fecha si existen
+    if start_date:
+        base_query = base_query.filter(Movement.date >= start_date)
+    if end_date:
+        base_query = base_query.filter(Movement.date <= end_date)
+    
+    # Calcular totales por tipo
+    total_income = base_query.filter(
+        Movement.type == "income"
+    ).with_entities(
+        func.coalesce(func.sum(Movement.amount), 0.0)
+    ).scalar() or 0.0
+
+    total_expense = base_query.filter(
+        Movement.type == "expense"
+    ).with_entities(
+        func.coalesce(func.sum(Movement.amount), 0.0)
+    ).scalar() or 0.0
+
+    return {
+        "total_income": round(total_income, 2),
+        "total_expense": round(total_expense, 2),
+        "balance": round(total_income - total_expense, 2)
+    }
+
+def get_user_by_username(db: Session, username: str) -> Optional[User]:
+    """
+    Obtiene un usuario por su nombre de usuario.
+    
+    Args:
+        db: Sesión de la base de datos.
+        username: Nombre de usuario a buscar.
+        
+    Returns:
+        El objeto User si existe, None si no se encuentra.
+    """
+
+    return db.query(User).filter(User.username == username).first()
