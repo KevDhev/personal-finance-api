@@ -1,5 +1,5 @@
 from datetime import datetime, timedelta, timezone
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -8,11 +8,21 @@ from app.models.user import User
 from jose import JWTError, jwt
 from pydantic import BaseModel
 from typing import Annotated, Optional, Any
+from pathlib import Path
+from dotenv import load_dotenv
+from os import getenv
 
-# Configuración (¡cambia esto en producción!)
-SECRET_KEY = "tu_clave_secreta_super_segura_de_almenos_32_caracteres"
+env_path = Path(__file__).resolve().parent.parent / ".env"
+load_dotenv(env_path)
+
+# Configuración
+SECRET_KEY = str(getenv("SECRET_KEY", ""))
+
+if not SECRET_KEY:
+    raise ValueError("SECRET_KEY no está configurada en .env")
+
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
 # Esquema para datos del token
 class TokenData(BaseModel):
@@ -42,7 +52,7 @@ def get_current_user(
     db: Session = Depends(get_db)
 ) -> User:
     credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
+        status_code=401,
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"}
     )

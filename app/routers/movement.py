@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app import crud
@@ -13,7 +13,7 @@ router = APIRouter(
     tags=["movements"]
 )
 
-@router.post("/", response_model=MovementOut, status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=MovementOut, status_code=201)
 def create_movement(
     movement: MovementCreate,
     db: Session=Depends(get_db),
@@ -37,7 +37,7 @@ def create_movement(
         )
     except Exception as error:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail=str(error)
         )
     
@@ -74,7 +74,7 @@ def read_movements(
     # Validación adicional de fechas
     if start_date and end_date and start_date > end_date:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="La fecha de inicio no puede ser mayor a la fecha final"
         )
     
@@ -107,7 +107,7 @@ def get_financial_summary(
 
     if start_date and end_date and start_date > end_date:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="La fecha inicial no puede ser mayor a la final"
         )
     
@@ -134,7 +134,7 @@ def read_movement(
 
     if db_movement is None or db_movement.user_id != current_user.id:   #type: ignore
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail="Movement not found"
         )
     
@@ -160,7 +160,7 @@ def update_movement(
 
     if db_movement is None or db_movement.user_id != current_user.id:   # type: ignore
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail="Movement not found"
         )
     
@@ -171,7 +171,7 @@ def update_movement(
         user_id=current_user.id # type: ignore
     )
 
-@router.delete("/{movement_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{movement_id}", status_code=204)
 def delete_movement(
     movement_id: int,
     db: Session=Depends(get_db),
@@ -187,7 +187,7 @@ def delete_movement(
 
     if db_movement is None or db_movement.user_id != current_user.id:   # type: ignore
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
+            status_code=404,
             detail="Movement not found"
         )
     

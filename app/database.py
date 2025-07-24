@@ -1,31 +1,38 @@
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from dotenv import load_dotenv
+from os import getenv
 
-# URL de la base de datos
-SQLALCHEMY_DATABASE_URL = 'sqlite:///./sql_app.db'
+load_dotenv()
 
-# Motor: conexión principal con la DB.
+# Database URL.
+SQLALCHEMY_DATABASE_URL = getenv("DATABASE_URL")
+
+if SQLALCHEMY_DATABASE_URL is None:
+    raise ValueError("DATABASE_URL is not set in .env")
+
+# Engine: main connection to the database  
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL,
     connect_args={'check_same_thread': False}
 )
 
-# Fábrica de sesiones
+# Session factory 
 SessionLocal = sessionmaker(
-    autocommit=False,           # No guardar automáticamente.
-    autoflush=False,            # No enviar comandos hasta indicarlo.
-    bind=engine                 # Usa el motor creado previamente.
+    autocommit=False,           # Don't autocommit 
+    autoflush=False,            # Don't autoflush 
+    bind=engine                 # Use the previously created engine
 )
 
-# Clase base para modelos
+# Base class for models 
 Base = declarative_base()
 
-# Generador de sesiones para dependencias de FastAPI
+# Session generator for FastAPI dependencies  
 def get_db():
-    db = SessionLocal()         # Crea una sesión nueva.
+    db = SessionLocal()         # Create a new session 
 
     try:
-        yield db                # Entrega la sesión al endpoint.
+        yield db                # Provide the session to the endpoint 
     finally:
-        db.close()              # Cierra la sesión después.
+        db.close()              # Close the session afterward 

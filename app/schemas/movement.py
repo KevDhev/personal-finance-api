@@ -3,32 +3,32 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from enum import Enum
 
-# Enumerado para tipo de movimiento
+# Enum for movement type 
 class MovementType(str, Enum):
     INCOME = "income"
     EXPENSE = "expense"
 
-# Esquema base común
+# Common base schema 
 class MovementBase(BaseModel):
     amount: float = Field(..., gt=0, description="Positive amount of movement")
     type: MovementType = Field(..., description="Type of movement: income or expense")
     description: Optional[str] = Field(None, max_length=255)
 
-# Esquema para creación
+# Schema for creation 
 class MovementCreate(MovementBase):
     date: Optional[datetime] = None
 
-# Esquema para actualización (campos opcionales)
+# Schema for update (optional fields)
 class MovementUpdate(BaseModel):
     amount: Optional[float] = Field(None, gt=0)
     type: Optional[MovementType] = None
     description: Optional[str] = Field(None, max_length=255)
 
-# Esquema para respuesta (incluye todos los campos)
+# Schema for response (includes all fields) 
 class MovementOut(MovementBase):
     id: int
     date: datetime
     user_id: int
 
     class Config:
-        from_attributes = True          # Habilita la compatibilidad con ORM
+        from_attributes = True          # Enables ORM compatibility  

@@ -3,26 +3,26 @@ from pydantic import BaseModel, EmailStr, Field
 from typing import Optional, List
 from app.schemas.movement import MovementOut
 
-# Esquema base común (evita repetir campos)
+# Common base schema (avoids repeating fields) 
 class UserBase(BaseModel):
     username: str = Field(..., min_length=3, max_length=50, examples=["KevDhev"])
     email: EmailStr = Field(..., examples=["kevdhev@example.com"])
 
-# Esquema para creación (hereda de UserBase)
+# Schema for creation (inherits from UserBase)
 class UserCreate(UserBase):
     password: str = Field(..., min_length=8, examples=["qwerty123"])
 
-# Esquema para actualización (todos los campos opcionales)
+# Schema for update (all fields optional) 
 class UserUpdate(BaseModel):
     username: Optional[str] = Field(None, min_length=3, max_length=50)
     email: Optional[EmailStr] = None
     password: Optional[str] = Field(None, min_length=8)
 
-# Esquema para respuesta (sin contraseña)
+# Schema for response (without password) 
 class UserOut(UserBase):
     id: int
     created_at: datetime
-    movements: List[MovementOut] = []   # Relación con movimientos
+    movements: List[MovementOut] = []   # Relationship with movements 
 
     class Config:
-        from_attributes = True          # Habilita la compatibilidad con ORM
+        from_attributes = True          # Enables ORM compatibility  

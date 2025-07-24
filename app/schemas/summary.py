@@ -2,27 +2,27 @@ from pydantic import BaseModel, Field
 
 class BalanceSummary(BaseModel):
     """
-    Esquema para la respuesta del resumen financiero.
-    Contiene los totales de ingresos, gastos y el balance resultante.
+    Schema for the financial summary response.
+    Contains total income, expenses, and the resulting balance.
     """
 
     total_income: float=Field(
         ...,
-        description="Suma total de todos los movimientos de ingreso",
+        description="Total sum of all income movements" ,
         examples=[1500.50],
         ge=0
     )
 
     total_expense: float=Field(
         ...,
-        description="Suma total de todos los movimientos de gasto",
+        description="Total sum of all expense movements",
         examples=[750.25],
         ge=0
     )
 
     balance: float=Field(
         ...,
-        description="Diferencia entre ingresos y gastos (income - expense)",
+        description="Difference between income and expenses (income - expense)",
         examples=[750.25]
     )
 

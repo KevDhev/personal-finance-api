@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from datetime import timedelta
@@ -11,7 +11,7 @@ from app import crud
 
 router = APIRouter(tags=["auth"])
 
-@router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
+@router.post("/register", response_model=UserOut, status_code=201)
 async def register(user_data: UserCreate, db: Session=Depends(get_db)):
     """
     Registra un nuevo usuario.
@@ -26,7 +26,7 @@ async def register(user_data: UserCreate, db: Session=Depends(get_db)):
 
     if db_user:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=400,
             detail="Username already registered"
         )
     
@@ -51,7 +51,7 @@ async def login(
 
     if not user:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=401,
             detail="Usuario o contraseña incorrectos",
             headers={"WWW-Authenticate": "Bearer"}
         )

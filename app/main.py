@@ -9,11 +9,11 @@ from app.models.movement import Movement # type: ignore
 
 app = FastAPI(
     title="Personal Finance API",
-    description="API para gestionar finanzas personales",
+    description="Personal finance management API",
     version="1.0.0"
 )
 
-# Crear todas las tablas definidas en los modelos
+#Create all tables defined in the models
 Base.metadata.create_all(bind=engine)
 
 # Routers

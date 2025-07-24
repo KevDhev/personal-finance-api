@@ -1,24 +1,27 @@
-# Ignorar directorios de pycache
+# Ignore pycache directories
 __pycache__/
 
-# Ignorar archivos de bytecode de Python
+# Ignore Python bytecode files
 *.pyc
 *.pyo
 
-# Ignorar entornos virtuales
+# Ignore virtual environments
 venv/
 .venv/
 
-# Ignorar archivos específicos del sistema operativo
+# Ignore OS-specific files
 .DS_Store
 Thumbs.db
 
-# Ignorar archivos de registro
+# Ignore log files
 *.log
 
-# Ignorar archivos de configuración sensibles
+# Ignore sensitive configuration files
 *.env
 .env.local
+.env
 
-# Ignorar db
+# Ignore database-related files
 *.db
+*.sqlite
+*.sqlite3
