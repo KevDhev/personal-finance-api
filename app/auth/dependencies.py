@@ -15,23 +15,23 @@ from os import getenv
 env_path = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(env_path)
 
-# Configuración
+# Configuration
 SECRET_KEY = str(getenv("SECRET_KEY", ""))
 
 if not SECRET_KEY:
-    raise ValueError("SECRET_KEY no está configurada en .env")
+    raise ValueError("SECRET_KEY is not set in .env")
 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = int(getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 
-# Esquema para datos del token
+# Schema for token data
 class TokenData(BaseModel):
     username: Optional[str] = None
 
-# Configuración del flujo OAuth2
+# OAuth2 flow configuration 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
-# Función para crear tokens JWT
+# Function to create JWT tokens
 def create_access_token(
     data: dict[str, Any],
     expires_delta: Optional[timedelta] = None
@@ -46,7 +46,7 @@ def create_access_token(
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# Dependencia para obtener el usuario actual
+# Dependency to get the current user
 def get_current_user(
     token:Annotated[str, Depends(oauth2_scheme)],
     db: Session = Depends(get_db)

@@ -12,6 +12,6 @@ class Movement(Base):
     description = Column(String(255))
     date = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
-    # Relacion con User
+    # Relationship with User
     user_id = Column(Integer, ForeignKey("users.id"))
     user = relationship("User", back_populates="movements")

@@ -4,8 +4,8 @@ from typing import Optional
 
 class Token(BaseModel):
     """
-    Esquema para la respuesta de autenticación JWT.
-    Contiene el token de acceso y su tipo.
+    Schema for the JWT authentication response.
+    Contains the access token and its type.
     """
 
     access_token: str=Field(..., examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."])
@@ -13,22 +13,22 @@ class Token(BaseModel):
 
 class TokenData(BaseModel):
     """
-    Datos encapsulados en el JWT.
-    Usado para validación en endpoints protegidos.
+    Data encapsulated in the JWT.
+    Used for validation in protected endpoints.
     """
 
     username: Optional[str]=Field(None, examples=["john_doe"])
     exp: Optional[datetime]=Field(None, examples=["2024-12-31T23:59:59Z"])
 
 class UserAuth(BaseModel):
-    #Esquema base para autenticación.
+    # Base schema for authentication.
 
     username: str=Field(..., min_length=3, max_length=50, examples=["john_doe"])
 
 class UserCreate(UserAuth):
     """
-    Esquema para registro de usuarios.
-    Extiende UserAuth añadiendo email y password.
+    Schema for user registration.
+    Extends UserAuth by adding email and password.
     """
 
     email: EmailStr=Field(..., examples=["user@example.com"])
@@ -40,14 +40,14 @@ class UserCreate(UserAuth):
     )
 
 class UserLogin(UserAuth):
-    # Esquema para inicio de sesión.
+    # Schema for login.
 
     password: str=Field(..., examples=["Str0ngP@ss"])
 
 class UserInDB(UserAuth):
     """
-    Esquema interno para usuarios en base de datos.
-    No debe exponerse públicamente.
+    Internal schema for users in the database.
+    Should not be publicly exposed.
     """
 
     email: EmailStr

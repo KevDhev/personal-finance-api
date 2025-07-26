@@ -14,14 +14,14 @@ router = APIRouter(tags=["auth"])
 @router.post("/register", response_model=UserOut, status_code=201)
 async def register(user_data: UserCreate, db: Session=Depends(get_db)):
     """
-    Registra un nuevo usuario.
+    Registers a new user.
     
-    - **username**: 3-50 caracteres (único)
-    - **email**: Formato válido (único)
-    - **password**: Mínimo 8 caracteres, 1 número y 1 símbolo
+    - **username**: 3-50 characters (unique)
+    - **email**: Valid format (unique)
+    - **password**: Minimum 8 characters, 1 number and 1 symbol
     """
 
-    # Verifica si el usuario ya existe
+    # Check if the user already exists
     db_user = crud.get_user_by_username(db, username=user_data.username)
 
     if db_user:
@@ -30,7 +30,7 @@ async def register(user_data: UserCreate, db: Session=Depends(get_db)):
             detail="Username already registered"
         )
     
-    # Crea el usuario (la contraseña se hashea en crud.create_user)
+    # Create the user (password is hashed in crud.create_user)
     created_user = create_user(db=db, user_data=user_data)
 
     return created_user
@@ -41,10 +41,10 @@ async def login(
     db: Session=Depends(get_db)
 ):
     """
-    Inicia sesión y devuelve un token JWT.
+    Logs in and returns a JWT token.
     
-    - **username**: Tu nombre de usuario
-    - **password**: Tu contraseña
+    - **username**: Your username
+    - **password**: Your password
     """
 
     user = authenticate_user(db, form_data.username, form_data.password)
@@ -52,11 +52,11 @@ async def login(
     if not user:
         raise HTTPException(
             status_code=401,
-            detail="Usuario o contraseña incorrectos",
+            detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
     
-    # Crea token de acceso (expira en 30 mins por defecto)
+    # Create access token (expires in 30 mins by default)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
         data={"sub": user.username},

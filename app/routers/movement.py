@@ -20,13 +20,13 @@ def create_movement(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Crea un nuevo movimiento financiero.
+    Creates a new financial movement.
     
-    - **amount**: Monto del movimiento (debe ser positivo)
-    - **type**: Tipo de movimiento (ingreso/gasto)
-    - **description**: Descripción opcional
-    - **date**: Fecha opcional (default: ahora)
-    - **user_id**: ID del usuario asociado (requerido)
+    - **amount**: Movement amount (must be positive)
+    - **type**: Movement type (income/expense)
+    - **description**: Optional description
+    - **date**: Optional date (default: now)
+    - **user_id**: Associated user ID (required)
     """
 
     try:
@@ -45,15 +45,15 @@ def create_movement(
 def read_movements(
     start_date: Optional[date]=Query(
         None,
-        description="Filtrar movimientos desde esta fecha (YYYY-MM-DD)"
+        description="Filter movements from this date (YYYY-MM-DD)" 
     ),
     end_date: Optional[date]=Query(
         None,
-        description="Filtrar movimientos hasta esta fecha (YYYY-MM-DD)"
+        description="Filter movements up to this date (YYYY-MM-DD)"
     ),
     movement_type: Optional[str]=Query(
         None,
-        description="Tipo de movimiento: 'ingreso' o 'gasto'",
+        description="Type of movement: 'income' or 'expense'",
         regex="^(income|expense)$"
     ),
     skip: int=0,
@@ -62,23 +62,23 @@ def read_movements(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Obtiene movimientos con filtros opcionales:
+    Retrieves movements with optional filters:
     
-    - **start_date**: Fecha inicial (inclusive)
-    - **end_date**: Fecha final (inclusive)
-    - **movement_type**: 'ingreso' o 'gasto'
-    - **skip**: Paginación (registros a saltar)
-    - **limit**: Máximo de registros (hasta 100)
+    - **start_date**: Start date (inclusive)
+    - **end_date**: End date (inclusive)
+    - **movement_type**: 'income' or 'expense'
+    - **skip**: Pagination (records to skip)
+    - **limit**: Maximum number of records (up to 100)
     """
 
-    # Validación adicional de fechas
+    # Additional date validation 
     if start_date and end_date and start_date > end_date:
         raise HTTPException(
             status_code=400,
-            detail="La fecha de inicio no puede ser mayor a la fecha final"
+            detail="The start date cannot be greater than the end date"
         )
     
-    # Llamar a la función CRUD con los filtros
+    # Call the CRUD function with the filters
     return crud.get_movements(
         db=db,
         user_id=current_user.id,    #type: ignore
@@ -91,24 +91,24 @@ def read_movements(
 
 @router.get("/summary", response_model=BalanceSummary)
 def get_financial_summary(
-    start_date: Optional[date]=Query(None, description="Fecha inicial (YYYY-MM-DD)"),
-    end_date: Optional[date]=Query(None, description="Fecha final (YYYY-MM-DD)"),
+    start_date: Optional[date]=Query(None, description="Start date (YYYY-MM-DD)"),
+    end_date: Optional[date]=Query(None, description="End date (YYYY-MM-DD)"),
     db: Session=Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
-    Resumen financiero con:
-    - Total ingresos
-    - Total gastos
+    Financial summary with:
+    - Total income
+    - Total expenses
     - Balance
-    
-    Filtros opcionales por fecha.
+
+    Optional date filters.
     """
 
     if start_date and end_date and start_date > end_date:
         raise HTTPException(
             status_code=400,
-            detail="La fecha inicial no puede ser mayor a la final"
+            detail="The start date cannot be greater than the end date"
         )
     
     return crud.get_balance_summary(
@@ -125,9 +125,9 @@ def read_movement(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Obtiene un movimiento financiero específico por su ID.
+    Retrieves a specific financial movement by its ID.
     
-    - **movement_id**: ID del movimiento a recuperar
+    - **movement_id**: ID of the movement to retrieve
     """
 
     db_movement = crud.get_movement(db, movement_id=movement_id)
@@ -148,12 +148,12 @@ def update_movement(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Actualiza un movimiento financiero existente.
+    Updates an existing financial movement.
     
-    - **movement_id**: ID del movimiento a actualizar
-    - **amount**: Nuevo monto (opcional)
-    - **type**: Nuevo tipo (opcional)
-    - **description**: Nueva descripción (opcional)
+    - **movement_id**: ID of the movement to update
+    - **amount**: New amount (optional)
+    - **type**: New type (optional)
+    - **description**: New description (optional)
     """
     
     db_movement = crud.get_movement(db, movement_id=movement_id)
@@ -178,9 +178,9 @@ def delete_movement(
     current_user: User = Depends(get_current_user)
 ):
     """
-    Elimina un movimiento financiero.
+    Deletes a financial movement.
     
-    - **movement_id**: ID del movimiento a eliminar
+    - **movement_id**: ID of the movement to delete
     """
 
     db_movement = crud.get_movement(db, movement_id=movement_id)
