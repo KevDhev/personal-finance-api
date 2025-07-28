@@ -8,6 +8,20 @@
 
 ---
 
+## 🚀 Quick Start
+
+```bash
+git clone [https://github.com/KevDhev/personal-finance-api.git]
+cd personal-finance-api
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+---
+
 ## 🔐 Authentication
 
 ### Register
